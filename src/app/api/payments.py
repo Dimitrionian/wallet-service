@@ -19,7 +19,7 @@ async def create_user(
     payment_repo: PaymentRepository = fastapi.Depends(get_payment_repo),
 ) -> schemas.User:
     try:
-        user = await payment_repo.create_user(data)
+        user = await payment_repo.create_user(data, payment_repo)
     except UserExistsError as e:
         raise fastapi.HTTPException(
             status_code=status.HTTP_409_CONFLICT,

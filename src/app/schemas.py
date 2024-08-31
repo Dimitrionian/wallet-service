@@ -1,5 +1,5 @@
 import pydantic
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from decimal import Decimal
 
 
@@ -8,8 +8,9 @@ class Base(BaseModel):
 
 
 class User(Base):
-    id: str
-    name: str
+    id: int
+    name: str | None
+    email: EmailStr
 
 
 class UserBalance(Base):
@@ -17,8 +18,9 @@ class UserBalance(Base):
 
 
 class UserCreate(Base):
-    id: str
-    name: str
+    name: str | None
+    email: EmailStr
+    password: str
 
 
 class TransactionAdd(Base):

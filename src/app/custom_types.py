@@ -7,4 +7,4 @@ class TransactionType(enum.Enum):
 
 
 ALEMBIC_SCHEME = "postgresql"
-
+FAST_API_SCHEME = "postgresql+asyncpg"

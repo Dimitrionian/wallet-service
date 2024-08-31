@@ -15,10 +15,6 @@ class Settings(BaseSettings):
     service_name: str = "Wallet API"
     debug: bool = False
 
-    # def __init__(self, scheme: str):
-    #     self.scheme = scheme if scheme is not None else
-    #     super().__init__(scheme=scheme)
-
     @field_validator("db_dsn", mode="before")
     def assemble_dsn(cls, v, info: FieldValidationInfo):
         if isinstance(v, str):

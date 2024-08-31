@@ -4,14 +4,7 @@ from alembic import context
 from sqlalchemy import URL, create_engine
 
 from app.models import METADATA
-from app.settings import Settings
 from app.custom_types import ALEMBIC_SCHEME
-
-
-def get_dsn(scheme: str | None = None) -> URL:
-    settings = Settings(scheme=scheme)
-    db_dsn = settings.db_dsn
-    return db_dsn
 
 
 # this is the Alembic Config object, which provides
