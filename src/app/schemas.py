@@ -1,5 +1,6 @@
 import pydantic
 from pydantic import BaseModel
+from decimal import Decimal
 
 
 class Base(BaseModel):
@@ -11,6 +12,18 @@ class User(Base):
     name: str
 
 
+class UserBalance(Base):
+    amount: Decimal
+
+
 class UserCreate(Base):
     id: str
     name: str
+
+
+class TransactionAdd(Base):
+    amount: Decimal
+
+
+class Transaction(Base):
+    hash: str
