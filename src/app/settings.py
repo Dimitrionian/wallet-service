@@ -4,6 +4,7 @@ from pydantic import FieldValidationInfo
 
 
 class Settings(BaseSettings):
+    scheme: str
     name: str
     user: str
     password: str
@@ -14,12 +15,16 @@ class Settings(BaseSettings):
     service_name: str = "Wallet API"
     debug: bool = False
 
+    # def __init__(self, scheme: str):
+    #     self.scheme = scheme if scheme is not None else
+    #     super().__init__(scheme=scheme)
+
     @field_validator("db_dsn", mode="before")
     def assemble_dsn(cls, v, info: FieldValidationInfo):
         if isinstance(v, str):
             return v
 
-        return f"postgresql+asyncpg://{info.data['user']}:{info.data['password']}@{info.data['host']}:" \
+        return f"{info.data['scheme']}://{info.data['user']}:{info.data['password']}@{info.data['host']}:" \
                f"{info.data['port']}/{info.data['name']}"
 
     model_config = {

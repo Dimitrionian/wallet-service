@@ -5,12 +5,13 @@ from sqlalchemy import URL, create_engine
 
 from app.models import METADATA
 from app.settings import Settings
+from app.custom_types import ALEMBIC_SCHEME
 
 
-def get_dsn() -> URL:
-    settings = Settings()
+def get_dsn(scheme: str | None = None) -> URL:
+    settings = Settings(scheme=scheme)
     db_dsn = settings.db_dsn
-    return db_dsn.set(drivername="postgresql")
+    return db_dsn
 
 
 # this is the Alembic Config object, which provides
@@ -54,7 +55,7 @@ def run_migrations_online() -> None:
     In this scenario we need to create an Engine and associate a
     connection with the context.
     """
-    connectable = create_engine(get_dsn())
+    connectable = create_engine(get_dsn(ALEMBIC_SCHEME))
 
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
