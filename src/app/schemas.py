@@ -2,9 +2,16 @@ import pydantic
 from pydantic import BaseModel, EmailStr
 from decimal import Decimal
 
+from app.custom_types import TransactionType
+
 
 class Base(BaseModel):
     model_config = pydantic.ConfigDict(from_attributes=True)
+
+
+class TokenRequestForm(Base):
+    email: EmailStr
+    password: str | None
 
 
 class User(Base):
@@ -25,7 +32,10 @@ class UserCreate(Base):
 
 class TransactionAdd(Base):
     amount: Decimal
+    type: TransactionType
 
 
 class Transaction(Base):
-    hash: str
+    transaction_id: str
+    amount: Decimal
+    type: TransactionType

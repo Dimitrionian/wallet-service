@@ -3,6 +3,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import URL, create_engine
 
+from app.api.base import get_dsn
 from app.models import METADATA
 from app.custom_types import ALEMBIC_SCHEME
 

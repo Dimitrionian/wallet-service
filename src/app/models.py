@@ -2,14 +2,19 @@ import logging
 import typing
 import sqlalchemy as sa
 
-from sqlalchemy import Column, Integer, String, Numeric, ForeignKey
+from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, Enum as SQLAEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import Enum
+
+from app.custom_types import TransactionType
 
 logger = logging.getLogger(__name__)
 
 
 METADATA: typing.Final = sa.MetaData()
+
+transaction_type_enum = Enum(TransactionType, name="transactiontype")
 
 
 class Base(DeclarativeBase):
@@ -31,7 +36,8 @@ class Transaction(Base):
     __tablename__ = 'transactions'
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
     amount = Column(Numeric(precision=10, scale=2))
-    description = Column(String)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     user = relationship("User", back_populates="transactions")
+    type = Column(transaction_type_enum, nullable=False)
+    transaction_id = Column(String, unique=True, nullable=False)

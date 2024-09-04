@@ -1,8 +1,8 @@
-"""create user and transaction tables
+"""Create models
 
-Revision ID: 6b1624a6b043
+Revision ID: 82fe1f193808
 Revises: 
-Create Date: 2024-08-31 18:58:15.663147
+Create Date: 2024-09-04 19:10:41.753040
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '6b1624a6b043'
+revision = '82fe1f193808'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -31,11 +31,13 @@ def upgrade():
     op.create_index(op.f('ix_users_name'), 'users', ['name'], unique=False)
     op.create_table('transactions',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('amount', sa.Numeric(precision=10, scale=2), nullable=True),
-    sa.Column('description', sa.String(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('type', sa.Enum('WITHDRAW', 'DEPOSIT', name='transactiontype'), nullable=False),
+    sa.Column('transaction_id', sa.String(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('transaction_id')
     )
     op.create_index(op.f('ix_transactions_id'), 'transactions', ['id'], unique=False)
     # ### end Alembic commands ###

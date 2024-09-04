@@ -23,6 +23,8 @@ psycopg2 = "*"
 sqlalchemy = "*"
 asyncpg = "*"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-jose = "^3.3.0"
+bcrypt = "3.2.2"
 
 [tool.poetry.group.dev.dependencies]
 polyfactory = "*"
