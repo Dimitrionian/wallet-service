@@ -2,7 +2,8 @@ import logging
 import typing
 import sqlalchemy as sa
 
-from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, Enum as SQLAEnum
+from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, DateTime
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Enum
@@ -37,6 +38,7 @@ class Transaction(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     amount = Column(Numeric(precision=10, scale=2))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     user = relationship("User", back_populates="transactions")
     type = Column(transaction_type_enum, nullable=False)

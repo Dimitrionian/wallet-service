@@ -1,4 +1,5 @@
 import bcrypt
+from decimal import Decimal
 from jose import jwt
 from passlib.context import CryptContext
 from sqlalchemy import URL
@@ -6,11 +7,12 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException
 from starlette import status
 from sqlalchemy.future import select
+from sqlalchemy import func
 
 from datetime import datetime, timedelta
 
 from app.settings import Settings
-from app.models import User
+from app.models import User, Transaction
 from app.custom_types import TransactionType
 from app.schemas import TransactionAdd
 
@@ -20,6 +22,35 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+async def get_total_balance(repo: 'PaymentRepository', **kwargs) -> Decimal:
+    async with repo.db_session_maker() as session:
+        async with session.begin():
+            result = await session.execute(select(User).filter_by(id=kwargs.get("user_id")))
+            user = result.scalars().first()
+        await session.commit()
+    return user.balance
+
+
+async def get_date_balance(repo: 'PaymentRepository', **kwargs) -> Decimal:
+    async with repo.db_session_maker() as session:
+        async with session.begin():
+            _ts = datetime.fromtimestamp(kwargs.get("ts"))
+            stmt = select(func.sum(Transaction.amount))\
+                .where(Transaction.created_at <= _ts)\
+                .where(Transaction.user_id == kwargs.get("user_id"))
+            result = await session.execute(stmt)
+            total_amount = result.scalar()
+        await session.commit()
+
+    return total_amount
+
+
+balance_strategy = {
+    True: get_date_balance,
+    False: get_total_balance
+}
 
 
 # Utility function for password hashing and verification

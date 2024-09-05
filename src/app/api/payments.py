@@ -39,7 +39,7 @@ async def create_user(
     payment_repo: PaymentRepository = fastapi.Depends(get_payment_repo),
 ) -> schemas.User:
     try:
-        user = await payment_repo.create_user(data, payment_repo)
+        user = await payment_repo.create_user(payment_repo, data)
     except UserExistsError as e:
         raise fastapi.HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -50,15 +50,16 @@ async def create_user(
 
 @ROUTER.get("/user/{user_id}/balance/")
 async def get_user_balance(
-    user_id: str,
-    ts: datetime | None = None,
+    user_id: int,
+    ts: int | None = None,
+    current_user: User = Depends(get_current_user),
     payment_repo: PaymentRepository = fastapi.Depends(get_payment_repo),
 ) -> schemas.UserBalance:
-    balance = await payment_repo.get_user_balance(user_id, ts=ts)
+    balance = await payment_repo.get_user_balance(payment_repo, user_id=user_id, ts=ts)
     if balance is None:
         raise fastapi.HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    return typing.cast(schemas.UserBalance, {"balance": balance})
+    return typing.cast(schemas.UserBalance, {"amount": balance})
 
 
 @ROUTER.post("/transaction/")
@@ -68,7 +69,7 @@ async def add_transaction(
     payment_repo: PaymentRepository = fastapi.Depends(get_payment_repo),
 ) -> schemas.Transaction:
     try:
-        transaction = await payment_repo.add_transaction(data, payment_repo, await current_user)
+        transaction = await payment_repo.add_transaction(payment_repo, data, await current_user)
     except PaymentError as e:
         raise fastapi.HTTPException(
             status_code=status.HTTP_409_CONFLICT,

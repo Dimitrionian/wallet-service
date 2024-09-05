@@ -56,7 +56,7 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    user = get_user(db, email)
+    user = await get_user(db, email)
     if user is None:
         raise credentials_exception
     return user
