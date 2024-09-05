@@ -78,12 +78,12 @@ async def add_transaction(
     return typing.cast(schemas.Transaction, transaction)
 
 
-@ROUTER.post("/transaction/{transaction_id}")
+@ROUTER.get("/transaction/{transaction_id}")
 async def get_transaction(
     transaction_id: str,
     payment_repo: PaymentRepository = fastapi.Depends(get_payment_repo),
 ) -> schemas.Transaction:
-    transaction = await payment_repo.get_transaction(transaction_id)
+    transaction = await payment_repo.get_transaction(transaction_id, payment_repo)
     if transaction is None:
         raise fastapi.HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
     return typing.cast(schemas.Transaction, transaction)

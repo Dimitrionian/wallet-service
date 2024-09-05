@@ -11,10 +11,12 @@ from datetime import datetime, timedelta
 
 from app.settings import Settings
 from app.models import User
+from app.custom_types import TransactionType
+from app.schemas import TransactionAdd
 
 SECRET_KEY = "your-secret-key"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -65,3 +67,11 @@ async def authenticate_user(db: 'PaymentRepository', email: str, password: str):
 def get_dsn(scheme: str | None = None) -> URL:
     settings = Settings(scheme=scheme)
     return settings.db_dsn
+
+
+async def change_balance(user: User, data: TransactionAdd) -> None:
+    balance = user.balance + data.amount if data.type.value == TransactionType.DEPOSIT.value else \
+        user.balance - data.amount
+
+    if balance >= 0:
+        user.balance = balance

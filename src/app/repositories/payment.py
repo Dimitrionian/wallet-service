@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import (
 
 from app import schemas
 from app.models import User, Transaction
-from app.repositories.utils import hash_password
+from app.repositories.utils import hash_password, change_balance
 from app.schemas import TransactionAdd
 
 
@@ -49,7 +49,20 @@ class PaymentRepository:
                     transaction_id=tx_id,
                     user=user
                 )
+                await change_balance(user, data)
                 session.add(new_transaction)
             await session.commit()
 
         return new_transaction
+
+    async def get_transaction(self, tx_id: str, payment_repo: Self) -> Transaction:
+        async with payment_repo.db_session_maker() as session:
+            async with session.begin():
+                result = await session.execute(select(Transaction).filter_by(transaction_id=tx_id))
+                transaction = result.scalars().first()
+                if not transaction:
+                    raise HTTPException(status_code=404, detail="Transaction not found")
+
+            await session.commit()
+
+        return transaction
